@@ -189,11 +189,11 @@ After `terraform apply`, note the console outputs:
 
 ## 📸 Result Gallery
 
-- **Registration page** – glassmorphism form submitted via Fetch:
+- **Registration page** 
 
   ![Registration page screenshot](images/image.png)
 
-Add more screenshots to `images/` and extend this gallery as your UI evolves.
+
 
 ---
 
