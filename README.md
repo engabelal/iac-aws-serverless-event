@@ -80,7 +80,29 @@ Serverless-Event-Registration/
 | **ACM certificates** | Required when using custom domains. API Gateway cert must live in your deployment region; CloudFront cert must be in `us-east-1`. |
 
 ---
+---
 
+
+## 📸 Result Gallery
+
+- **Registration page** – entry form sourced from S3/CloudFront.
+
+  ![Registration page screenshot](images/register_page.png)
+
+- **Winners lounge** – raffle draw locked on three unique winners.
+
+  ![Winners page screenshot](images/winner_page.png)
+
+- **DynamoDB table scan** – proof of persisted attendees and winner flags.
+
+  ![DynamoDB table screenshot](images/dynamodb_winner.png)
+
+- **Terraform apply output** – CLI logs highlighting the emitted endpoints.
+
+  ![Terraform apply output screenshot](images/terraform_apply_result.png)
+
+
+---
 ## 🌐 Custom Domain Planning
 
 If you intend to expose the stack on your own domain, prepare these items **before running Terraform**:
@@ -187,29 +209,6 @@ After `terraform apply`, note the console outputs:
 - `s3_website_url` – direct S3 website endpoint.
 - `cloudfront_url` – public CDN URL (null if CloudFront disabled).
 - Custom domain URLs (if configured) can be derived via the variables you set.
-
----
-
-
-## 📸 Result Gallery
-
-- **Registration page** – glassmorphism entry form sourced from S3/CloudFront.
-
-  ![Registration page screenshot](images/register_page.png)
-
-- **Winners lounge** – raffle draw locked on three unique winners.
-
-  ![Winners page screenshot](images/winner_page.png)
-
-- **DynamoDB table scan** – proof of persisted attendees and winner flags.
-
-  ![DynamoDB table screenshot](images/dynamodb_winner.png)
-
-- **Terraform apply output** – CLI logs highlighting the emitted endpoints.
-
-  ![Terraform apply output screenshot](images/terraform_apply_result.png)
-
-
 
 ---
 
