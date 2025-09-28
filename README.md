@@ -27,7 +27,7 @@ This project lives alongside the modular variant in the repo; use it when you wa
 ## 📁 Project Layout
 
 ```
-event-registration/
+Serverless-Event-Registration/
 ├── README.md
 ├── main.tf
 ├── variables.tf
