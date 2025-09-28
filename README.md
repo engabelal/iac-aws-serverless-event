@@ -22,6 +22,19 @@ This project lives alongside the modular variant in the repo; use it when you wa
 4. Lambda reads/writes from DynamoDB and returns results.
 5. Winners page calls `/count` and `/pick_winners` to present live stats.
 
+```mermaid
+flowchart TD
+    User[User Browser] -->|HTTPS| CloudFront[CloudFront CDN]
+    CloudFront --> S3[S3 Static Website Hosting<br/>(HTML/JS Frontend)]
+    CloudFront --> APIGW[API Gateway (HTTP API)]
+    APIGW --> LambdaRegister[Lambda: Register]
+    APIGW --> LambdaCount[Lambda: Count]
+    APIGW --> LambdaPick[Lambda: Pick Winners]
+    LambdaRegister --> DynamoDB[(DynamoDB Table)]
+    LambdaCount --> DynamoDB
+    LambdaPick --> DynamoDB
+```
+
 ---
 
 ## ✅ Prerequisites
