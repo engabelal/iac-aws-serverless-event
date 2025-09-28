@@ -35,6 +35,9 @@ Serverless-Event-Registration/
 ├── providers.tf
 ├── outputs.tf
 ├── graph.dot
+├── images/
+│   ├── event-registration-aws-architecture.png
+│   └── image.png
 ├── lambdas/
 │   ├── register.js
 │   ├── count.js
@@ -58,6 +61,8 @@ Serverless-Event-Registration/
 3. API Gateway (optionally fronted by a custom domain) routes requests to Lambda.
 4. Lambda reads/writes from DynamoDB and returns results.
 5. Winners page calls `/count` and `/pick_winners` to present live stats.
+
+![AWS serverless architecture diagram](images/event-registration-aws-architecture.png)
 
 ---
 
@@ -179,6 +184,16 @@ After `terraform apply`, note the console outputs:
 - `s3_website_url` – direct S3 website endpoint.
 - `cloudfront_url` – public CDN URL (null if CloudFront disabled).
 - Custom domain URLs (if configured) can be derived via the variables you set.
+
+---
+
+## 📸 Result Gallery
+
+- **Registration page** – glassmorphism form submitted via Fetch:
+
+  ![Registration page screenshot](images/image.png)
+
+Add more screenshots to `images/` and extend this gallery as your UI evolves.
 
 ---
 
