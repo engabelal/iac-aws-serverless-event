@@ -8,6 +8,8 @@ A production-style lab that provisions an end-to-end event registration experien
 - An **S3 static website** hosts the stylish registration and winners pages that call the API dynamically.
 - An optional **Amazon CloudFront** distribution accelerates and secures the web experience.
 
+**Tech stack:** Terraform · AWS Lambda (Node.js 20 + AWS SDK v3) · Amazon API Gateway · Amazon DynamoDB · Amazon S3 · Amazon CloudFront · AWS CloudWatch Logs · Bootstrap 5 · Vanilla JavaScript (Fetch API)
+
 This project lives alongside the modular variant in the repo; use it when you want a single `main.tf` that spells out every resource.
 
 ---
@@ -77,7 +79,8 @@ The README checklist in the next section walks through those additions step by s
 
 1. **Clone / open the project**
    ```bash
-   cd DevOps-Cloud-Portfolio/Portfolio-Projects/event-registration
+   git clone https://github.com/engabelal/iac-aws-serverless-event
+   cd iac-aws-serverless-event
    ```
 
 2. **Install Terraform providers**
@@ -173,4 +176,28 @@ Double-check the AWS Console for any additional log groups created by test runs.
 
 ## 📄 License
 
-MIT-0 — see the repository root for details.
+This project is released under the MIT License.
+
+```
+MIT License
+
+Copyright (c) 2024 Ahmed Belal
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
