@@ -37,7 +37,10 @@ Serverless-Event-Registration/
 ├── graph.dot
 ├── images/
 │   ├── event-registration-aws-architecture.png
-│   └── image.png
+│   ├── register_page.png
+│   ├── winner_page.png
+│   ├── dynamodb_winner.png
+│   └── terraform_apply_result.png
 ├── lambdas/
 │   ├── register.js
 │   ├── count.js
@@ -187,11 +190,24 @@ After `terraform apply`, note the console outputs:
 
 ---
 
+
 ## 📸 Result Gallery
 
-- **Registration page** 
+- **Registration page** – glassmorphism entry form sourced from S3/CloudFront.
 
-  ![Registration page screenshot](images/image.png)
+  ![Registration page screenshot](images/register_page.png)
+
+- **Winners lounge** – raffle draw locked on three unique winners.
+
+  ![Winners page screenshot](images/winner_page.png)
+
+- **DynamoDB table scan** – proof of persisted attendees and winner flags.
+
+  ![DynamoDB table screenshot](images/dynamodb_winner.png)
+
+- **Terraform apply output** – CLI logs highlighting the emitted endpoints.
+
+  ![Terraform apply output screenshot](images/terraform_apply_result.png)
 
 
 
