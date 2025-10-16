@@ -489,6 +489,36 @@ aws logs delete-log-group --log-group-name "/aws/lambda/cloudycode-event_pick_wi
 aws s3 rm s3://event.cloudycode.dev --recursive
 ```
 
+### ⚠️ Important: Redeploying the Project
+
+If you destroy and want to redeploy:
+
+**1. Delete DNS Records First**
+- Go to your DNS provider (Namecheap, Cloudflare, etc.)
+- Delete A/AAAA records for `event.cloudycode.dev` and `api.cloudycode.dev`
+- **Wait 5-10 minutes** for DNS propagation
+
+**2. Verify DNS is Cleared**
+```bash
+nslookup event.cloudycode.dev
+# Should return "can't find" or no result ✅
+```
+
+**3. Then Redeploy**
+```bash
+terraform apply -auto-approve
+```
+
+**Why?** CloudFront caches DNS records. If old records exist pointing to deleted distributions, you'll get:
+```
+Error: CNAMEAlreadyExists
+```
+
+**Quick Fix if Error Occurs:**
+- Delete DNS records from your provider
+- Wait 5-10 minutes
+- Retry `terraform apply`
+
 ---
 
 ## 🛠️ Troubleshooting
