@@ -12,16 +12,17 @@ Production-ready serverless event registration and raffle system built with AWS 
 
 ### Screenshots
 
-<table>
-  <tr>
-    <td><img src="images/register_page.png" alt="Registration Page" width="400"/><br/><b>Registration Page</b></td>
-    <td><img src="images/winner_page.png" alt="Winners Page" width="400"/><br/><b>Winners Page</b></td>
-  </tr>
-  <tr>
-    <td><img src="images/dynamodb_winner.png" alt="DynamoDB" width="400"/><br/><b>DynamoDB Table</b></td>
-    <td><img src="images/event-registration-aws-architecture.png" alt="Architecture" width="400"/><br/><b>AWS Architecture</b></td>
-  </tr>
-</table>
+#### Registration Page
+![Registration Page](images/register_page.png)
+
+#### Winners Page
+![Winners Page](images/winner_page.png)
+
+#### DynamoDB Table
+![DynamoDB Table](images/dynamodb_winner.png)
+
+#### AWS Architecture
+![Architecture Diagram](images/event-registration-aws-architecture.png)
 
 ---
 
@@ -114,6 +115,49 @@ terraform output
 api_url         = "https://abc123.execute-api.eu-north-1.amazonaws.com/dev"
 s3_website_url  = "http://event.cloudycode.dev.s3-website.eu-north-1.amazonaws.com"
 cloudfront_url  = "https://d1234abcd.cloudfront.net"
+
+========================================
+📋 DNS CONFIGURATION REQUIRED
+========================================
+
+Add these CNAME records to your DNS provider:
+
+1. CloudFront (Website):
+   Type: CNAME
+   Name: event
+   Value: d1234abcd.cloudfront.net
+   TTL: 300
+
+2. API Gateway:
+   Type: CNAME
+   Name: api
+   Value: d-abc123xyz.execute-api.eu-north-1.amazonaws.com
+   TTL: 300
+
+⏱️  Wait 5-10 minutes for DNS propagation
+✅ Test: https://event.cloudycode.dev
+========================================
+```
+
+### Configure DNS (Namecheap/Cloudflare/etc.)
+
+**Get CNAME values:**
+```bash
+terraform output cloudfront_domain_name
+terraform output api_gateway_domain_name
+```
+
+**Add to your DNS provider:**
+
+| Type | Host | Value | TTL |
+|------|------|-------|-----|
+| CNAME | event | `d1234abcd.cloudfront.net` | 300 |
+| CNAME | api | `d-abc123xyz.execute-api.eu-north-1.amazonaws.com` | 300 |
+
+**Wait 5-10 minutes**, then test:
+```bash
+curl -I https://event.cloudycode.dev
+curl https://api.cloudycode.dev/count
 ```
 
 ---
