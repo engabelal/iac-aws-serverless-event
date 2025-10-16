@@ -24,6 +24,9 @@ Production-ready serverless event registration and raffle system built with AWS 
 #### AWS Architecture
 ![Architecture Diagram](images/event-registration-aws-architecture.png)
 
+#### Terraform Apply Result
+![Terraform Apply Result](images/terraform_apply_result.png)
+
 ---
 
 ## 🛠️ Tech Stack
