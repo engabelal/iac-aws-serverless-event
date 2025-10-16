@@ -1,128 +1,122 @@
 # 🎟️ Serverless Event Registration System
 
-A production-ready serverless event registration and raffle system built with AWS services and Terraform IaC.
+Production-ready serverless event registration and raffle system built with AWS and Terraform.
 
-## 🏗️ Architecture Overview
-
-```
-User → CloudFront → S3 (Static Website) → API Gateway → Lambda → DynamoDB
-```
-
-### Components:
-- **Frontend**: Static HTML/JS hosted on S3 + CloudFront CDN
-- **Backend**: API Gateway HTTP API + Lambda Functions (Node.js 20.x)
-- **Database**: DynamoDB (Pay-per-request billing)
-- **CDN**: CloudFront distribution with cost-optimized edge locations
-
-**Tech Stack:**
-
-![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)
-![AWS Lambda](https://img.shields.io/badge/AWS%20Lambda-FF9900?style=for-the-badge&logo=awslambda&logoColor=white)
-![Amazon API Gateway](https://img.shields.io/badge/Amazon%20API%20Gateway-880075?style=for-the-badge&logo=amazonaws&logoColor=white)
-![Amazon DynamoDB](https://img.shields.io/badge/Amazon%20DynamoDB-4053D6?style=for-the-badge&logo=amazondynamodb&logoColor=white)
-![Amazon S3](https://img.shields.io/badge/Amazon%20S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white)
-![Amazon CloudFront](https://img.shields.io/badge/Amazon%20CloudFront-FF4F8B?style=for-the-badge&logo=amazonaws&logoColor=white)
-![Bootstrap 5](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
-
-![Architecture Diagram](images/event-registration-aws-architecture.png)
+![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)
+![AWS Lambda](https://img.shields.io/badge/AWS%20Lambda-FF9900?style=flat-square&logo=awslambda&logoColor=white)
+![API Gateway](https://img.shields.io/badge/API%20Gateway-880075?style=flat-square&logo=amazonaws&logoColor=white)
+![DynamoDB](https://img.shields.io/badge/DynamoDB-4053D6?style=flat-square&logo=amazondynamodb&logoColor=white)
+![S3](https://img.shields.io/badge/S3-569A31?style=flat-square&logo=amazons3&logoColor=white)
+![CloudFront](https://img.shields.io/badge/CloudFront-FF4F8B?style=flat-square&logo=amazonaws&logoColor=white)
 
 ---
 
-## 📋 Features
+## 📐 Architecture
 
-✅ **Event Registration** - Users submit email/name to register for events  
-✅ **Winner Selection** - Admin can pick random winners from participants  
-✅ **Count API** - Get total number of registered participants  
-✅ **CORS Enabled** - API accessible from any origin  
-✅ **Custom Domains** - Support for branded URLs (optional)  
-✅ **Auto-deployment** - Terraform handles all infrastructure  
+```
+User → CloudFront CDN → S3 Static Website → API Gateway → Lambda → DynamoDB
+```
+
+![Architecture Diagram](images/event-registration-aws-architecture.png)
+
+**Components:**
+- **Frontend**: S3 + CloudFront with custom domain
+- **Backend**: API Gateway HTTP API + Lambda (Node.js 20.x)
+- **Database**: DynamoDB (pay-per-request)
+- **Security**: ACM certificates, HTTPS, CORS
+
+---
+
+## ✨ Features
+
+- ✅ Event registration with email/name
+- ✅ Random winner selection (3 winners)
+- ✅ Participant count tracking
+- ✅ Custom domain support (CloudFront + API Gateway)
+- ✅ CORS enabled
+- ✅ Infrastructure as Code (Terraform)
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- AWS CLI configured with credentials
+- AWS CLI configured
 - Terraform >= 1.5
-- Node.js 20.x (for Lambda runtime)
+- Node.js 20.x
 
-### Deployment Steps
+### Deploy
 
 ```bash
-# 1. Clone and navigate to project
-cd Serverless-Event-Registration
-
-# 2. Initialize Terraform
+# 1. Initialize
 terraform init
 
-# 3. Review the plan
+# 2. Plan
 terraform plan
 
-# 4. Deploy infrastructure
+# 3. Deploy
 terraform apply -auto-approve
 
-# 5. Get outputs
+# 4. Get URLs
 terraform output
 ```
 
 ### Outputs
-After deployment, you'll get:
-- **CloudFront URL**: `https://d1234abcd.cloudfront.net`
-- **S3 Website URL**: `http://bucket-name.s3-website.eu-north-1.amazonaws.com`
-- **API Gateway URL**: `https://abc123.execute-api.eu-north-1.amazonaws.com/dev`
+```
+api_url         = "https://abc123.execute-api.eu-north-1.amazonaws.com/dev"
+s3_website_url  = "http://cloudycode-event-site.s3-website.eu-north-1.amazonaws.com"
+cloudfront_url  = "https://d1234abcd.cloudfront.net"
+```
 
 ---
 
 ## ⚙️ Configuration
 
-### Variables (`variables.tf`)
+### Basic Setup (`terraform.tfvars`)
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `aws_region` | `eu-north-1` | AWS region for deployment |
-| `project_name` | `abcloud-event` | Project name prefix |
-| `bucket_name` | `abcloud-event-site` | S3 bucket name (must be globally unique) |
-| `allow_origins` | `["*"]` | CORS allowed origins |
-| `cloudfront_domain` | `""` | Custom domain for CloudFront (optional) |
-| `acm_certificate_arn` | `""` | ACM certificate ARN for CloudFront (us-east-1) |
-| `api_domain` | `""` | Custom domain for API Gateway (optional) |
-| `api_certificate_arn` | `""` | ACM certificate ARN for API Gateway (regional) |
-
-### Custom Configuration
-
-Create `terraform.tfvars`:
 ```hcl
-aws_region   = "us-east-1"
-project_name = "my-event"
-bucket_name  = "events.example.com"
-allow_origins = ["https://example.com"]
+aws_region    = "eu-north-1"
+project_name  = "cloudycode-event"
+bucket_name   = "cloudycode-event-site"
+allow_origins = ["*"]
+```
 
-# Optional: Custom domains
-cloudfront_domain = "events.example.com"
+### With Custom Domains
+
+```hcl
+aws_region    = "eu-north-1"
+project_name  = "cloudycode-event"
+bucket_name   = "event.cloudycode.dev"  # Must match CloudFront domain
+
+# Custom domains
+cloudfront_domain = "event.cloudycode.dev"
+api_domain        = "api.cloudycode.dev"
+
+# ACM certificates
 acm_certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/abc-123"
-api_domain = "api.events.example.com"
 api_certificate_arn = "arn:aws:acm:eu-north-1:123456789012:certificate/xyz-789"
+
+# CORS
+allow_origins = ["https://event.cloudycode.dev"]
 ```
 
 ---
 
 ## 🌐 CloudFront Configuration
 
-### Price Classes Explained
+### Price Classes
 
 ```hcl
 price_class = "PriceClass_100"
 ```
 
-**AWS CloudFront Price Classes:**
+| Class | Coverage | Cost | Use Case |
+|-------|----------|------|----------|
+| `PriceClass_100` | US, Canada, Europe | 💰 Cheapest | Regional apps |
+| `PriceClass_200` | + Asia, Middle East | 💰💰 Medium | Multi-regional |
+| `PriceClass_All` | All edge locations | 💰💰💰 Highest | Global apps |
 
-| Price Class | Coverage | Cost | Use Case |
-|-------------|----------|------|----------|
-| `PriceClass_100` | US, Canada, Europe | 💰 Cheapest | Regional apps, cost-sensitive projects |
-| `PriceClass_200` | + Asia, Middle East, Africa | 💰💰 Medium | Multi-regional apps |
-| `PriceClass_All` | All edge locations worldwide | 💰💰💰 Highest | Global apps requiring lowest latency everywhere |
-
-**Current Setup**: `PriceClass_100` - Most cost-effective for European/North American users.
+**Current**: `PriceClass_100` (most cost-effective for EU/NA)
 
 ### Cache Policy
 
@@ -130,85 +124,95 @@ price_class = "PriceClass_100"
 cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"  # CachingOptimized
 ```
 
-**AWS Managed Cache Policies:**
+**AWS Managed Policies:**
+- `CachingDisabled` - No caching (dynamic content)
+- `CachingOptimized` - ✅ Recommended (static websites)
+- `CachingOptimizedForUncompressedObjects` - Large files
 
-Get full list with CLI:
+Get full list:
 ```bash
 aws cloudfront list-cache-policies --type managed
 ```
 
-| Policy | ID | Use Case |
-|--------|-----|----------|
-| `CachingDisabled` | `4135ea2d-6df8-44a3-9df3-4b5a84be39ad` | Dynamic content, no caching |
-| `CachingOptimized` | `658327ea-f89d-4fab-a63d-7e88639e58f6` | ✅ Recommended for most use cases |
-| `CachingOptimizedForUncompressedObjects` | `b2884449-e4de-46a7-ac36-70bc7f1ddd6d` | Large files, videos |
-
-**Current Setup**: Using `CachingOptimized` - Best performance for static websites.
-
 ---
 
-## 🔒 SSL/TLS Certificate Setup
+## 🔒 SSL/TLS Certificates
 
-### Option 1: CloudFront Default Certificate (Current)
-```hcl
-viewer_certificate {
-  cloudfront_default_certificate = true
-}
-```
-- ✅ Free, automatic
-- ✅ Works immediately
-- ❌ Uses CloudFront domain: `d1234abcd.cloudfront.net`
-- ❌ No custom domain
+### Certificate Requirements
 
-### Option 2: Custom Domain with ACM Certificate
+| Service | Region | Domain |
+|---------|--------|--------|
+| CloudFront | **us-east-1** (required) | `event.cloudycode.dev` |
+| API Gateway | Deployment region | `api.cloudycode.dev` |
 
-#### Step-by-Step Setup:
+### Setup Steps
 
-**1. Request CloudFront Certificate in ACM (us-east-1 ONLY)**
+**1. Request CloudFront Certificate (us-east-1)**
 ```bash
-# CloudFront requires certificates in us-east-1 region!
 aws acm request-certificate \
-  --domain-name events.example.com \
-  --subject-alternative-names "www.events.example.com" \
+  --domain-name event.cloudycode.dev \
   --validation-method DNS \
   --region us-east-1
 ```
 
-**2. Request API Gateway Certificate (Regional)**
+**2. Request API Gateway Certificate (eu-north-1)**
 ```bash
-# API Gateway certificate in your deployment region
 aws acm request-certificate \
-  --domain-name api.events.example.com \
+  --domain-name api.cloudycode.dev \
   --validation-method DNS \
   --region eu-north-1
 ```
 
 **3. Validate Certificates**
-- Go to ACM Console → Certificate → Create DNS records in Route53
-- Or manually add CNAME records to your DNS provider
-- Wait for status to change to "Issued"
+- Go to ACM Console → Create DNS records
+- Or add CNAME records manually to DNS provider
+- Wait for status: "Issued"
 
-**4. Update Terraform Configuration**
+**4. Update terraform.tfvars**
 ```hcl
-# terraform.tfvars
-cloudfront_domain = "events.example.com"
-acm_certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/abc-123-def"
-api_domain = "api.events.example.com"
-api_certificate_arn = "arn:aws:acm:eu-north-1:123456789012:certificate/xyz-789-ghi"
-bucket_name = "events.example.com"  # Must match CloudFront domain
+acm_certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/abc-123"
+api_certificate_arn = "arn:aws:acm:eu-north-1:123456789012:certificate/xyz-789"
 ```
 
-**5. Create Route53 DNS Records**
-```hcl
-# Add to main.tf or separate dns.tf file
-data "aws_route53_zone" "main" {
-  name = "example.com"
-}
+**5. Deploy**
+```bash
+terraform apply -auto-approve
+```
 
+---
+
+## 🌍 Real-World Example: cloudycode.dev
+
+### Actual Production Setup
+
+**Domain Structure:**
+```
+Website:  event.cloudycode.dev  → CloudFront → S3
+API:      api.cloudycode.dev    → API Gateway → Lambda
+```
+
+**Configuration:**
+```hcl
+# terraform.tfvars
+aws_region    = "eu-north-1"
+project_name  = "cloudycode-event"
+bucket_name   = "event.cloudycode.dev"
+
+cloudfront_domain = "event.cloudycode.dev"
+api_domain        = "api.cloudycode.dev"
+
+acm_certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/abc-123"
+api_certificate_arn = "arn:aws:acm:eu-north-1:123456789012:certificate/xyz-789"
+
+allow_origins = ["https://event.cloudycode.dev"]
+```
+
+**DNS Records (Route53):**
+```hcl
 # CloudFront A record
 resource "aws_route53_record" "cloudfront" {
   zone_id = data.aws_route53_zone.main.zone_id
-  name    = "events.example.com"
+  name    = "event.cloudycode.dev"
   type    = "A"
   
   alias {
@@ -221,7 +225,7 @@ resource "aws_route53_record" "cloudfront" {
 # CloudFront AAAA record (IPv6)
 resource "aws_route53_record" "cloudfront_ipv6" {
   zone_id = data.aws_route53_zone.main.zone_id
-  name    = "events.example.com"
+  name    = "event.cloudycode.dev"
   type    = "AAAA"
   
   alias {
@@ -233,9 +237,8 @@ resource "aws_route53_record" "cloudfront_ipv6" {
 
 # API Gateway A record
 resource "aws_route53_record" "api" {
-  count   = var.api_certificate_arn != "" ? 1 : 0
   zone_id = data.aws_route53_zone.main.zone_id
-  name    = "api.events.example.com"
+  name    = "api.cloudycode.dev"
   type    = "A"
   
   alias {
@@ -246,129 +249,27 @@ resource "aws_route53_record" "api" {
 }
 ```
 
----
-
-## 🌍 Real-World Example: Production Setup
-
-### Scenario: Company Event Registration for Global Audience
-
-**1. Prepare ACM Certificates**
+**Testing:**
 ```bash
-# CloudFront certificate (us-east-1)
-aws acm request-certificate \
-  --domain-name events.company.com \
-  --validation-method DNS \
-  --region us-east-1
+# Website
+curl -I https://event.cloudycode.dev
 
-# API Gateway certificate (deployment region)
-aws acm request-certificate \
-  --domain-name api.events.company.com \
-  --validation-method DNS \
-  --region eu-north-1
-```
-
-**2. Configure terraform.tfvars**
-```hcl
-aws_region   = "eu-north-1"
-project_name = "company-events-2024"
-bucket_name  = "events.company.com"
-
-# Custom domains
-cloudfront_domain = "events.company.com"
-acm_certificate_arn = "arn:aws:acm:us-east-1:987654321098:certificate/abc-123-def"
-api_domain = "api.events.company.com"
-api_certificate_arn = "arn:aws:acm:eu-north-1:987654321098:certificate/xyz-789-ghi"
-
-# CORS - restrict to company domains
-allow_origins = [
-  "https://company.com",
-  "https://www.company.com",
-  "https://events.company.com"
-]
-```
-
-**3. Update main.tf for Production**
-```hcl
-resource "aws_cloudfront_distribution" "cdn" {
-  enabled             = true
-  default_root_object = "register.html"
-  aliases             = var.acm_certificate_arn != "" ? [var.cloudfront_domain] : []
-  price_class         = "PriceClass_200"  # Global audience needs Asia/Middle East
-
-  origin {
-    domain_name = aws_s3_bucket_website_configuration.site.website_endpoint
-    origin_id   = "s3-website-${aws_s3_bucket.site.bucket}"
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "http-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
-    }
-  }
-
-  default_cache_behavior {
-    target_origin_id       = "s3-website-${aws_s3_bucket.site.bucket}"
-    viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
-    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"  # CachingOptimized
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-      # Optional: Restrict to specific countries
-      # restriction_type = "whitelist"
-      # locations        = ["US", "CA", "GB", "DE", "FR"]
-    }
-  }
-
-  viewer_certificate {
-    acm_certificate_arn      = var.acm_certificate_arn
-    ssl_support_method       = "sni-only"
-    minimum_protocol_version = "TLSv1.2_2021"
-  }
-
-  tags = {
-    Environment = "production"
-    Project     = var.project_name
-  }
-}
-```
-
-**4. Deploy and Configure DNS**
-```bash
-# Deploy infrastructure
-terraform apply -auto-approve
-
-# DNS records are created automatically by Terraform
-# Verify in Route53 console or with:
-aws route53 list-resource-record-sets --hosted-zone-id Z1234567890ABC
-```
-
-**5. Test Production URLs**
-```bash
-# Test website
-curl -I https://events.company.com
-
-# Test API
-curl https://api.events.company.com/count
+# API
+curl https://api.cloudycode.dev/count
 ```
 
 ---
 
 ## 📡 API Endpoints
 
-### Base URL
+**Base URL:**
 ```
-https://{api-id}.execute-api.{region}.amazonaws.com/dev
-# Or with custom domain:
-https://api.events.example.com
+https://api.cloudycode.dev
+# Or default:
+https://abc123.execute-api.eu-north-1.amazonaws.com/dev
 ```
 
-### Endpoints
-
-#### 1. Register for Event
+### 1. Register
 ```bash
 POST /register
 Content-Type: application/json
@@ -379,77 +280,62 @@ Content-Type: application/json
   "event": "Tech Conference 2024"
 }
 
-# Response:
+# Response
 {
   "message": "Registration successful!",
   "email": "user@example.com"
 }
 ```
 
-#### 2. Get Participant Count
+### 2. Count
 ```bash
 GET /count
 
-# Response:
+# Response
 {
   "count": 156
 }
 ```
 
-#### 3. Pick Winners
+### 3. Pick Winners
 ```bash
 GET /pick_winners
 
-# Response:
+# Response
 {
   "winners": [
-    {
-      "email": "winner1@example.com",
-      "name": "Lucky Person 1",
-      "event": "Tech Conference 2024"
-    },
-    {
-      "email": "winner2@example.com",
-      "name": "Lucky Person 2",
-      "event": "Tech Conference 2024"
-    },
-    {
-      "email": "winner3@example.com",
-      "name": "Lucky Person 3",
-      "event": "Tech Conference 2024"
-    }
+    {"email": "winner1@example.com", "name": "Person 1"},
+    {"email": "winner2@example.com", "name": "Person 2"},
+    {"email": "winner3@example.com", "name": "Person 3"}
   ]
 }
 ```
 
 ---
 
-## 🗂️ Project Structure
+## 📁 Project Structure
 
 ```
 Serverless-Event-Registration/
-├── main.tf                 # Main infrastructure code
+├── main.tf                 # Infrastructure code
 ├── variables.tf            # Input variables
 ├── outputs.tf              # Output values
-├── providers.tf            # AWS provider config
-├── terraform.tfvars        # Variable values (gitignored)
+├── providers.tf            # AWS provider
+├── terraform.tfvars        # Configuration
 ├── images/
 │   ├── event-registration-aws-architecture.png
 │   ├── register_page.png
 │   ├── winner_page.png
-│   ├── dynamodb_winner.png
-│   └── terraform_apply_result.png
+│   └── dynamodb_winner.png
 ├── lambdas/
-│   ├── register.js         # Registration Lambda
-│   ├── count.js            # Count Lambda
-│   ├── pick_winners.js     # Winner selection Lambda
-│   ├── register.zip        # Auto-generated
-│   ├── count.zip           # Auto-generated
-│   └── pick_winners.zip    # Auto-generated
+│   ├── register.js
+│   ├── count.js
+│   ├── pick_winners.js
+│   └── *.zip              # Auto-generated
 └── web/
-    ├── register.html       # Registration page
-    ├── winners.html        # Winners page
-    └── config.json         # Auto-generated API config
+    ├── register.html
+    ├── winners.html
+    └── config.json        # Auto-generated
 ```
 
 ---
@@ -457,199 +343,164 @@ Serverless-Event-Registration/
 ## 📸 Screenshots
 
 ### Registration Page
-![Registration Page](images/register_page.png)
+![Registration](images/register_page.png)
 
 ### Winners Page
-![Winners Page](images/winner_page.png)
+![Winners](images/winner_page.png)
 
 ### DynamoDB Table
-![DynamoDB Table](images/dynamodb_winner.png)
-
-### Terraform Apply Result
-![Terraform Apply](images/terraform_apply_result.png)
+![DynamoDB](images/dynamodb_winner.png)
 
 ---
 
 ## 🔧 Useful Commands
 
-### Get CloudFront Cache Policies
+### CloudFront
 ```bash
+# List cache policies
 aws cloudfront list-cache-policies --type managed \
-  --query 'CachePolicyList.Items[*].[Name,Id]' \
-  --output table
-```
+  --query 'CachePolicyList.Items[*].[Name,Id]' --output table
 
-### Invalidate CloudFront Cache
-```bash
-# Get distribution ID from Terraform output
-DIST_ID=$(terraform output -raw cloudfront_distribution_id)
-
-# Invalidate all files
+# Invalidate cache
 aws cloudfront create-invalidation \
-  --distribution-id $DIST_ID \
+  --distribution-id E1234ABCD \
   --paths "/*"
 ```
 
-### Check Certificate Status
+### ACM Certificates
 ```bash
-# CloudFront certificate (us-east-1)
+# Check CloudFront cert (us-east-1)
 aws acm describe-certificate \
   --certificate-arn arn:aws:acm:us-east-1:123456789012:certificate/abc-123 \
   --region us-east-1
 
-# API Gateway certificate (regional)
+# Check API cert (regional)
 aws acm describe-certificate \
   --certificate-arn arn:aws:acm:eu-north-1:123456789012:certificate/xyz-789 \
   --region eu-north-1
 ```
 
-### Test API Endpoints
+### Testing
 ```bash
 # Get API URL
 API_URL=$(terraform output -raw api_url)
 
-# Test count
+# Test endpoints
 curl $API_URL/count
-
-# Test registration
 curl -X POST $API_URL/register \
   -H "Content-Type: application/json" \
-  -d '{
-    "email":"test@example.com",
-    "name":"Test User",
-    "event":"Tech Conference 2024"
-  }'
-
-# Test pick winners
+  -d '{"email":"test@example.com","name":"Test","event":"Conference"}'
 curl $API_URL/pick_winners
 ```
 
-### View Lambda Logs
+### Lambda Logs
 ```bash
-# Get log group name
-aws logs describe-log-groups \
-  --log-group-name-prefix "/aws/lambda/abcloud-event"
-
 # Tail logs
-aws logs tail /aws/lambda/abcloud-event_register --follow
+aws logs tail /aws/lambda/cloudycode-event_register --follow
+aws logs tail /aws/lambda/cloudycode-event_count --follow
+aws logs tail /aws/lambda/cloudycode-event_pick_winners --follow
 ```
 
 ---
 
 ## 💰 Cost Estimation
 
-### Monthly Costs (Approximate)
+| Service | Usage | Monthly Cost |
+|---------|-------|--------------|
+| DynamoDB | 10K requests | ~$2.50 |
+| Lambda | 1M requests | ~$0.20 |
+| API Gateway | 1M requests | ~$1.00 |
+| S3 | 1GB + 10K requests | ~$0.05 |
+| CloudFront | 10GB (PriceClass_100) | ~$0.85 |
+| Route53 | 1 hosted zone | ~$0.50 |
+| ACM | Certificates | **FREE** |
+| CloudWatch | 1GB logs | ~$0.50 |
 
-| Service | Usage | Cost |
-|---------|-------|------|
-| **DynamoDB** | Pay-per-request, 10K requests | ~$2.50 |
-| **Lambda** | 1M requests, 128MB, 1s avg | ~$0.20 |
-| **API Gateway** | 1M requests | ~$1.00 |
-| **S3** | 1GB storage, 10K requests | ~$0.05 |
-| **CloudFront** | 10GB transfer (PriceClass_100) | ~$0.85 |
-| **Route53** | 1 hosted zone (if used) | ~$0.50 |
-| **ACM Certificate** | SSL/TLS certificates | **FREE** |
-| **CloudWatch Logs** | 1GB logs | ~$0.50 |
-
-**Total**: ~$5.60/month (with custom domain) or ~$5.10/month (without Route53)
+**Total**: ~$5.60/month
 
 ---
 
-## 🛡️ Security Best Practices
+## 🛡️ Security
 
 ### Current Setup
-✅ HTTPS enforced via CloudFront  
-✅ S3 bucket policy restricts to GetObject only  
-✅ Lambda IAM roles with least privilege  
-✅ API Gateway CORS configured  
-✅ TLS 1.2+ enforced on all endpoints  
+✅ HTTPS enforced  
+✅ S3 bucket policy (GetObject only)  
+✅ Lambda IAM least privilege  
+✅ CORS configured  
+✅ TLS 1.2+ enforced  
 
 ### Production Recommendations
-- [ ] Enable CloudFront WAF for DDoS protection
-- [ ] Implement API Gateway throttling/rate limiting
-- [ ] Add Lambda environment variable encryption (KMS)
-- [ ] Enable CloudTrail for audit logging
-- [ ] Restrict CORS to specific domains (not `*`)
-- [ ] Add DynamoDB point-in-time recovery
-- [ ] Implement API authentication (Cognito/API Keys)
-- [ ] Enable S3 bucket versioning
-- [ ] Add CloudWatch alarms for Lambda errors
-- [ ] Implement request validation in API Gateway
+- [ ] CloudFront WAF
+- [ ] API Gateway throttling
+- [ ] Lambda KMS encryption
+- [ ] CloudTrail logging
+- [ ] Restrict CORS origins
+- [ ] DynamoDB point-in-time recovery
+- [ ] API authentication (Cognito)
+- [ ] CloudWatch alarms
 
 ---
 
 ## 🧹 Cleanup
 
 ```bash
-# Destroy all resources
+# Destroy infrastructure
 terraform destroy -auto-approve
 
-# Manually delete CloudWatch Log Groups (not managed by Terraform)
-aws logs delete-log-group --log-group-name "/aws/lambda/abcloud-event_register"
-aws logs delete-log-group --log-group-name "/aws/lambda/abcloud-event_count"
-aws logs delete-log-group --log-group-name "/aws/lambda/abcloud-event_pick_winners"
+# Delete Lambda logs (not managed by Terraform)
+aws logs delete-log-group --log-group-name "/aws/lambda/cloudycode-event_register"
+aws logs delete-log-group --log-group-name "/aws/lambda/cloudycode-event_count"
+aws logs delete-log-group --log-group-name "/aws/lambda/cloudycode-event_pick_winners"
 
-# If S3 bucket has objects, empty it first
-aws s3 rm s3://your-bucket-name --recursive
+# Empty S3 bucket if needed
+aws s3 rm s3://event.cloudycode.dev --recursive
 ```
 
 ---
 
 ## 🛠️ Troubleshooting
 
-### Common Issues
+### S3 Access Denied
+- Check public access block is disabled
+- Verify bucket policy allows GetObject
+- Check organization SCPs
 
-**1. S3 Bucket Policy Error**
-```
-Error: AccessDenied: Access Denied
-```
-- Ensure public access block is disabled
-- Check bucket policy allows GetObject
-- Verify no organization SCPs blocking public access
+### CloudFront Certificate Error
+- Certificate MUST be in us-east-1
+- Certificate must cover domain in aliases
+- Wait for validation to complete
 
-**2. CloudFront Certificate Error**
-```
-Error: InvalidViewerCertificate
-```
-- Certificate MUST be in us-east-1 region
-- Certificate must cover the domain in aliases
-- Wait for certificate validation to complete
-
-**3. API Gateway Custom Domain Error**
-```
-Error: BadRequestException: The certificate must be in the same region
-```
-- API Gateway certificate must be in deployment region
-- CloudFront certificate must be in us-east-1
+### API Gateway Certificate Error
+- API cert must be in deployment region
+- CloudFront cert must be in us-east-1
 - Don't mix them up!
 
-**4. CORS Error in Browser**
-```
-Access to fetch at 'https://api...' has been blocked by CORS policy
-```
+### CORS Error
 - Check `allow_origins` in terraform.tfvars
-- Verify API Gateway CORS configuration
-- Clear browser cache and retry
+- Verify API Gateway CORS config
+- Clear browser cache
 
-**5. Winner Selection Not Working**
-```
-Winners already selected
-```
-- Lambda locks winners after first selection
-- Delete DynamoDB items or reset winner flags
-- Or deploy fresh stack for new event
+### Winners Already Selected
+- Lambda locks winners after first draw
+- Delete DynamoDB items to reset
+- Or deploy fresh stack
 
 ---
 
-## 📚 Additional Resources
+## 📚 Resources
 
-- [AWS CloudFront Pricing](https://aws.amazon.com/cloudfront/pricing/)
-- [ACM Certificate Validation](https://docs.aws.amazon.com/acm/latest/userguide/dns-validation.html)
+- [CloudFront Pricing](https://aws.amazon.com/cloudfront/pricing/)
+- [ACM Validation](https://docs.aws.amazon.com/acm/latest/userguide/dns-validation.html)
 - [CloudFront Cache Policies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html)
 - [API Gateway Custom Domains](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html)
-- [DynamoDB Best Practices](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html)
-- [Lambda Best Practices](https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html)
-- [Terraform AWS Provider Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+- [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+
+---
+
+## 👨‍💻 Author
+
+**Ahmed Belal** - DevOps Engineer  
+GitHub: [@engabelal](https://github.com/engabelal)
 
 ---
 
@@ -659,27 +510,4 @@ MIT License - Copyright (c) 2024 Ahmed Belal
 
 ---
 
-## 👨‍💻 Author
-
-**Ahmed Belal - DevOps Engineer**  
-- GitHub: [@engabelal](https://github.com/engabelal)
-- LinkedIn: [Ahmed Belal](https://linkedin.com/in/engabelal)
-
----
-
-## 🎯 Next Steps
-
-1. ✅ Deploy basic infrastructure
-2. ✅ Add CloudFront with optimized caching
-3. ⬜ Add custom domain with ACM certificates
-4. ⬜ Implement user authentication (Cognito)
-5. ⬜ Add email notifications (SES)
-6. ⬜ Create admin dashboard
-7. ⬜ Add analytics (CloudWatch/Athena)
-8. ⬜ Implement CI/CD pipeline (GitHub Actions)
-9. ⬜ Add monitoring and alerting
-10. ⬜ Implement backup and disaster recovery
-
----
-
-**Happy Event Registration! 🎉**
+**🎉 Happy Event Registration!**
