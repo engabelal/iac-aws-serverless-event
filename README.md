@@ -112,7 +112,7 @@ terraform output
 **Output:**
 ```
 api_url         = "https://abc123.execute-api.eu-north-1.amazonaws.com/dev"
-s3_website_url  = "http://cloudycode-event-site.s3-website.eu-north-1.amazonaws.com"
+s3_website_url  = "http://event.cloudycode.dev.s3-website.eu-north-1.amazonaws.com"
 cloudfront_url  = "https://d1234abcd.cloudfront.net"
 ```
 
@@ -527,6 +527,134 @@ aws s3 rm s3://event.cloudycode.dev --recursive
 - Lambda locks winners after first draw
 - Delete DynamoDB items to reset
 - Or deploy fresh stack for new event
+
+---
+
+## 🖱️ Manual Deployment (AWS Console)
+
+If you prefer using AWS Console instead of Terraform:
+
+### 1. ACM Certificates
+**Region: us-east-1 (for CloudFront)**
+- Go to ACM Console → Request certificate
+- Domain: `*.cloudycode.dev`
+- Validation: DNS
+- Add CNAME records to Route53
+
+**Region: eu-north-1 (for API Gateway)**
+- Repeat above steps in eu-north-1
+
+### 2. DynamoDB Table
+- Service: DynamoDB → Create table
+- Name: `cloudycode-event_db`
+- Partition key: `email` (String)
+- Sort key: `event` (String)
+- Billing: On-demand
+
+### 3. IAM Role for Lambda
+- Service: IAM → Roles → Create role
+- Trusted entity: Lambda
+- Permissions: `AmazonDynamoDBFullAccess`, `CloudWatchLogsFullAccess`
+- Name: `cloudycode-event-lambda-role`
+
+### 4. Lambda Functions (Create 3)
+**Function 1: Register**
+- Runtime: Node.js 20.x
+- Role: Use role from step 3
+- Code: Upload `lambdas/register.js`
+- Environment variable: `TABLE_NAME=cloudycode-event_db`
+
+**Function 2: Count**
+- Same as above, upload `lambdas/count.js`
+
+**Function 3: Pick Winners**
+- Same as above, upload `lambdas/pick_winners.js`
+
+### 5. API Gateway
+- Service: API Gateway → Create HTTP API
+- Name: `cloudycode-event-api`
+- CORS: Enable, Origins: `https://event.cloudycode.dev`
+
+**Create Routes:**
+- `POST /register` → Lambda: register
+- `GET /count` → Lambda: count
+- `GET /pick_winners` → Lambda: pick_winners
+
+**Create Stage:**
+- Name: `dev`
+- Auto-deploy: Enable
+
+**Custom Domain (Optional):**
+- Domain: `api.cloudycode.dev`
+- Certificate: Select from ACM (eu-north-1)
+- API mapping: Stage `dev`
+
+### 6. S3 Bucket
+- Service: S3 → Create bucket
+- Name: `event.cloudycode.dev`
+- Region: eu-north-1
+- Uncheck "Block all public access"
+
+**Enable Static Website:**
+- Properties → Static website hosting
+- Index document: `register.html`
+
+**Bucket Policy:**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Sid": "PublicRead",
+    "Effect": "Allow",
+    "Principal": "*",
+    "Action": "s3:GetObject",
+    "Resource": "arn:aws:s3:::event.cloudycode.dev/*"
+  }]
+}
+```
+
+**Upload Files:**
+- Upload `web/register.html`
+- Upload `web/winners.html`
+- Create `config.json` with API URL:
+```json
+{"api_url": "https://api.cloudycode.dev"}
+```
+
+### 7. CloudFront Distribution
+- Service: CloudFront → Create distribution
+- Origin domain: `event.cloudycode.dev.s3-website.eu-north-1.amazonaws.com`
+- Origin protocol: HTTP only
+- Viewer protocol: Redirect HTTP to HTTPS
+- Cache policy: CachingOptimized
+- Price class: Use only North America and Europe
+- Alternate domain: `event.cloudycode.dev`
+- Certificate: Select from ACM (us-east-1)
+- Default root object: `register.html`
+
+### 8. Route53 DNS Records
+**CloudFront A Record:**
+- Type: A
+- Name: `event.cloudycode.dev`
+- Alias: Yes → CloudFront distribution
+
+**CloudFront AAAA Record:**
+- Type: AAAA
+- Name: `event.cloudycode.dev`
+- Alias: Yes → CloudFront distribution
+
+**API Gateway A Record:**
+- Type: A
+- Name: `api.cloudycode.dev`
+- Alias: Yes → API Gateway domain
+
+### 9. Test
+- Visit: `https://event.cloudycode.dev`
+- Register a user
+- Check DynamoDB table
+- Visit winners page
+
+**Total Time:** ~45-60 minutes
 
 ---
 
