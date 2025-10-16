@@ -282,13 +282,14 @@ resource "aws_s3_object" "config_json" { # Upload the generated config.json to S
 }
 
 #######################################
-# 6. CloudFront Distribution (Optional)
+# 6. CloudFront Distribution with Custom Domain
 #######################################
 resource "aws_cloudfront_distribution" "cdn" {
   enabled             = true
   default_root_object = "register.html"
+  aliases             = var.acm_certificate_arn != "" ? [var.cloudfront_domain] : [] # Add custom domain only if certificate provided
 
-  origin { # S3 website endpoint as origin
+  origin {
     domain_name = aws_s3_bucket_website_configuration.site.website_endpoint
     origin_id   = "s3-website-${aws_s3_bucket.site.bucket}"
 
@@ -300,22 +301,15 @@ resource "aws_cloudfront_distribution" "cdn" {
     }
   }
 
-  default_cache_behavior { # Cache behavior settings
+  default_cache_behavior {
     target_origin_id       = "s3-website-${aws_s3_bucket.site.bucket}"
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
-    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # AWS managed: CachingOptimized you can get with " aws cloudfront list-cache-policies --type managed "
-    # AWS managed cache policies: 
-    # 1. CachingDisabled, 2. CachingOptimized (recommended), 3. CachingOptimizedForUncompressedObjects
+    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
   }
 
-  price_class = "PriceClass_100" 
-  # CloudFront price classes:
-    # 1. PriceClass_100 → Only US, Canada, Europe (cheapest)
-    # 2. PriceClass_200 → Adds Asia & Middle East (medium cost)
-    # 3. PriceClass_All → All edge locations worldwide (highest cost)
-    # Here we use PriceClass_100 as the most cost-effective option
+  price_class = "PriceClass_100"
 
   restrictions {
     geo_restriction {
@@ -324,10 +318,34 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = var.acm_certificate_arn != "" ? var.acm_certificate_arn : null
+    ssl_support_method       = var.acm_certificate_arn != "" ? "sni-only" : null
+    minimum_protocol_version = var.acm_certificate_arn != "" ? "TLSv1.2_2021" : null
+    cloudfront_default_certificate = var.acm_certificate_arn == "" ? true : false
   }
 
   tags = {
     project = var.project_name
   }
+}
+
+#######################################
+# 7. API Gateway Custom Domain (Optional)
+#######################################
+resource "aws_apigatewayv2_domain_name" "api" {
+  count       = var.api_certificate_arn != "" ? 1 : 0
+  domain_name = var.api_domain
+
+  domain_name_configuration {
+    certificate_arn = var.api_certificate_arn
+    endpoint_type   = "REGIONAL"
+    security_policy = "TLS_1_2"
+  }
+}
+
+resource "aws_apigatewayv2_api_mapping" "api" {
+  count       = var.api_certificate_arn != "" ? 1 : 0
+  api_id      = aws_apigatewayv2_api.api.id
+  domain_name = aws_apigatewayv2_domain_name.api[0].id
+  stage       = aws_apigatewayv2_stage.dev.id
 }
